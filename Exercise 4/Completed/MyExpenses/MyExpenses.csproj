@@ -103,7 +103,7 @@
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-100.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-72.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-144.png" />
-    <ImageAsset Include="Resources\Images.xcassets\AppIcons.&#xA;    appiconset\Icon-76.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-76.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-76%402x.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Icon-40.png" />
   </ItemGroup>
