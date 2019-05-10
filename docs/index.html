@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Editing TableViews</title>
+    <link rel="stylesheet" type="text/css" href="./parts/res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./parts/res/styles/prettify.css">
+    <link rel="stylesheet" type="text/css" href="./parts/res/styles/styles.css">
+</head>
+
+<body>
+    <!-- This will be filled in at runtime -->
+    <header role="course-title"></header>
+
+    <section id="main">
+
+        <h2>Before you begin</h2>
+        <p>
+        This is an iOS class. To complete the coding exercises, you will need a Xamarin.iOS development environment with either the iOS Simulator or an iOS device to run the exercise on. Please read the <a href="https://university.xamarin.com/resources/setup-requirements">setup requirements</a> if you need help installing the Xamarin development environment.
+        </p>
+
+        <h2>Overview</h2>
+        <p>
+          In iOS, it's fairly rare to come across applications (that aren't games) which do not use a Table View. This commonly used control lets an application display a scrollable list of data which can be manipulated and often forms the basis of master/detail views. This class will go through the basics of using Table Views, getting them into your UI, populating them with data and performing some basic customizations.
+        </p>
+
+        <h2>Objectives</h2>
+        <ol>
+            <li>Work with built-in editing operations</li>
+            <li>Add support for modern editing operations</li>
+            <li>Integrate a search bar</li>
+        </ol>
+
+        <h2>Lecture</h2>
+        <p><a href="./parts/slides.pdf">IOS215 - Editing TableViews</a>.</p>
+
+        <h2>Exercises</h2>
+        <p>
+            Exercise materials are available from <a href="https://github.com/XamarinUniversity/IOS215/">GitHub</a>. The code can be cloned through a desktop Git client or <a href="https://github.com/XamarinUniversity/IOS215/archive/master.zip">downloaded directly</a> as a ZIP file.
+        </p>
+        <ol>
+            <li>
+            <div class="objective">Support editing operations on a Table View</div>
+            <a href="./parts/part1.html">Exercise</a>
+            <br />
+            In this first exercise, you will modify an existing application to turn on the built-in editing features supported by a Table View.
+            </li>
+
+            <li>
+            <div class="objective">Committing editing operations</div>
+            <a href="./parts/part2.html">Exercise</a>
+            <br />
+            Next, you will finish the Table View editing support by implementing the <code>CommitEditingStyle</code> method and refresh the Table View data.
+            </li>
+
+            <li>
+            <div class="objective">Add support for swipe-gesture edit actions</div>
+            <a href="./parts/part3.html">Exercise</a>
+            <br />
+            A relatively new feature in iOS adds support for custom "swipe" actions. In this exercise, you will update the Expense Tracker application to support custom edit actions.
+            </li>
+
+            <li>
+            <div class="objective">Add support for the "pull-to-refresh" gesture</div>
+            <a href="./parts/part4.html">Exercise</a>
+            <br />
+            In this group exercise, we will use the pull-to-refresh gesture, which is a popular addition to Table Views that display external data and get new data from the external source.
+            </li>            
+
+            <li>
+            <div class="objective">Add search support to a Table View Controller</div>
+            <a href="./parts/part5.html">Exercise</a>
+            <br />
+            In this final exercise, you will add a search bar to a Table View using <code>UISearchController</code>. 
+            </li>  
+
+            <li>
+            <div class="objective">Scope your searches with a scope bar</div>
+            <a href="./parts/part6.html">Exercise</a>
+            <br />
+            In this optional homework assignment, you will integrate some category filters in the search experience by including a Scope Bar. 
+            </li>     
+        </ol>
+
+        <!-- This section is for additional links and examples that are relevant to 
+            the material in this course -->
+        <h2>Additional resources</h2>
+        <p>
+         Here are some additional documentation pages from Xamarin and Apple which are useful reading to provide an alternative learning path.
+        </p>
+
+        <div class="wslist">
+            <a target="_blank" href="http://developer.xamarin.com/guides/ios/user_interface/tables/">Working with Tables and Cells</a>
+            <a target="_blank" href="http://developer.xamarin.com/guides/ios/user_interface/tables/part_4_-_editing/">Editing TableViews</a>
+            <a target="_blank" href="http://developer.xamarin.com/guides/ios/user_interface/tables/row_action/">Working with Row Actions</a>
+            <a target="_blank" href="https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/TableView_iPhone/AboutTableViewsiPhone/AboutTableViewsiPhone.html">About Table Views in iOS Apps (Apple)</a>
+        </div>
+
+    </section>
+
+    <script src="./parts/res/js/jquery.min.js"></script>
+    <script src="./parts/res/js/prettify.js"></script>
+    <script src="./parts/res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft.<br><a target="_blank" href="http://university.xamarin.com">Visit Xamarin University for more classes and content</a></footer>
+</body>
+</html>
+

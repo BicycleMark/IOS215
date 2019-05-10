@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Exercise 5: Add search support to a Table View Controller</title>
+    <link rel="stylesheet" type="text/css" href="./res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./res/styles/prettify.css" />
+    <link rel="stylesheet" type="text/css" href="./res/styles/styles.css">
+</head>
+
+<body>
+    <!-- Use the same title as the StartHere -->
+    <header>Editing TableViews</header>
+
+    <section id="main">
+
+        <h1 id="page-title"></h1>
+        
+        <h2>Duration</h2>
+        <p>~15 minutes</p>
+
+        <h2>Goals</h2>
+       
+        <p>
+        The primary goal of this lab is to add a search bar to your expense application using the <code>UISearchController</code>.
+        </p>
+
+        <h2>Required assets</h2>
+        <p>
+        There is a completed solution in the <b>Exercise 5</b> folder. In addition, if you did not complete the prior exercise, you can use the completed solution from that exercise as a starting point here.
+        </p>
+
+        <h2>Challenge</h2>
+        <p>
+          Here are the high-level steps you will perform, you will be continuing from the prior exercise.
+        </p>
+          <ol>
+            <li>
+              Create and add the search controller and the search bar to the UI. 
+            </li>
+            <li>
+              Implement the<code> IUISearchResultsUpdating</code> interface which will let you add the ability to filter the expense list.
+            </li>
+            <li>
+              Add filtering functionality to the <code>GetCell</code> and <code>RowsInSection</code> method to use a filtered list instead of the real data whn using the search bar.
+            </li>
+        </ol>
+
+        <!-- Steps -->
+        <h1>Steps</h1>
+        <p>
+            Below are the step-by-step instructions you can use to provide additional details to the above high-level steps.
+        </p>
+
+        <h2>Adding the search controller and search bar</h2>
+        <p>
+          We will start by adding the Search Bar to our UI.
+        </p>
+        <ol>
+          <li>
+            Open <b>ExpenseListViewController.cs</b>.
+          </li>
+          <li>
+            Create a new class-field of type <code>UISearchController</code> and assign it to a new instance in your <code>ViewDidLoad</code> method after the <b>expenses</b> field has been assigned to the empty list.
+          </li>
+
+          <li>
+            Assign the <code>SearchResultsUpdater</code> callback to the View Controller (<code>this</code>), we will implement the interface in a moment.
+          </li>
+
+          <li>
+            Set the <code>DimsBackgroundDuringPresentation</code> to <code>false</code>.
+          </li>
+
+<p><a href="#" onclick="toggleCode(this,'codebased');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="codebased" style="display:none;">
+<pre class="prettyprint">
+UISearchController searchController;
+
+public async override void ViewDidLoad()
+{
+    ...
+    this.RefreshControl = refreshControl;
+
+    expenses = new List&lt;Expense>();
+
+    searchController = new UISearchController((UIViewController)null);
+    searchController.SearchResultsUpdater = this;
+    searchController.DimsBackgroundDuringPresentation = false;
+    ...
+}
+</pre></div></p>
+
+      <li>
+        Continuing in your <code>ViewDidLoad</code> method, add the search bar to the UI by assigning the <code>TableView.TableHeaderView</code> property to the <code>searchController.SearchBar</code> property.
+      </li>
+
+      <li>
+        Even though it's not necessary in this particularly UI, set the <code>DefinesPresentationContext</code> to <code>true</code> to properly manage the view parenting - it won't hurt anything to have it present, and then call <code>SizeToFit</code> on the search bar property to make sure it sizes correctly.
+      </li>
+
+<p><a href="#" onclick="toggleCode(this,'ExpList1');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="ExpList1" style="display:none;">
+<pre class="prettyprint">
+searchController.DimsBackgroundDuringPresentation = false;
+...
+TableView.TableHeaderView = searchController.SearchBar;
+DefinesPresentationContext = true;
+searchController.SearchBar.SizeToFit();
+...
+</pre></div></p>
+
+        <li>
+          Next, implement the <code>IUISearchResultsUpdating</code> interface on your <code>ExpenseListViewController</code> class - this has a single method which you must define: <code>UpdateSearchResultsForSearchController</code>, and it takes a single parameter which is the <code>UISearchController</code>. This method is called when you interact with the search bar UI. You can use the built-in "Implement Interface" feature of VS/XS to get the method defined for you (just right-click on the interface name once you add it to the list of defined interfaces to find the option).
+        </li>
+
+        <li>
+          Leave the method blank and run the app to see the new search UI added to your application. 
+        </li>
+
+        <img src="./res/images/lab5-searchui1.png" />
+
+        <li>
+          You can tap in the search box to activate the search experience - notice how it animates onto the navigation bar, replacing the <b>Edit</b> button and <b>Add (+)</b> button? That's the standard experience and exactly what we want in this case (it doesn't make sense to switch to editing mode when we are searching). You can still use swipe gestures while searching however, which is convenient because it means we can delete from a filtered list.
+        </li>
+
+        <img src="./res/images/lab5-searchui2.png" />
+
+        <li>
+          Try typing something into the edit box - notice that nothing happens because we've not added the filtering code yet. Let's do that next.
+        </li>
+      </ol>
+
+      <h2>Implement the filter support with GetCell and RowsInSection</h2>
+      <p>
+        We will be reusing our TableView to display the filtered results. To do that, we need to change our <code>GetCell</code> and <code>RowsInSection</code> method to respect the text typed in the search box. 
+      </p>
+      <ol>
+        <li>
+          To make this easy, we will use a separate collection when providing filtering. Create a new class field of type <code>List&lt;Expense></code> named <b>filteredExpenses</b>.
+        </li>
+        <li>
+          In your <code>UpdateSearchResultsForSearchController</code> method, use the passed <b>searchController</b> parameter and check the <code>Active</code> property. If the search UI is active, set the <b>filteredExpenses</b> to a new, empty list.
+        </li>
+        <li>
+          If the property is <code>false</code>, then set the filtered list to <code>null</code>. We'll use this to drive our <code>GetCell</code> and <code>RowsInSection</code> methods.
+        </li>
+        <li>
+          Finally, update the TableView data to the filter, let's use a method to do this action - add a call to a method named <b>FilterContentForSearchText</b> at the end of your <code>UpdateSearchResultsForSearchController</code> method, passing the SearchController's text property. 
+        </li>
+        <li>
+          Here's the method implementation for you to use - it uses a LINQ expression to filter all the data using the title:
+        </li>
+
+<pre class="codeblock prettyprint">
+void FilterContentForSearchText(string text)
+{
+    // Make sure to add using statement for System.Linq if needed.
+    if (filteredExpenses != null) {
+        filteredExpenses.Clear();
+        filteredExpenses.AddRange(
+            expenses.Where(e => 
+                string.IsNullOrWhiteSpace(text) 
+                || e.Title.ToUpper().Contains(text.ToUpper())));
+    }
+
+    TableView.ReloadData();
+}
+</pre>        
+ 
+<p><a href="#" onclick="toggleCode(this,'ExpListCtrl');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="ExpListCtrl" style="display:none;">
+<pre class="prettyprint">
+partial class ExpenseListViewController : UITableViewController, 
+     <span class="highlight">IUISearchResultsUpdating</span>
+{
+    ...
+
+    List&lt;Expense> filteredExpenses;
+    public void UpdateSearchResultsForSearchController(
+         UISearchController searchController)
+    {
+        if (searchController.Active)
+            filteredExpenses = new List&lt;Expense>();
+        else
+            filteredExpenses = null;
+
+        FilterContentForSearchText(searchController.SearchBar.Text);            
+    }
+}
+</pre></div></p>
+
+       <li>
+        The next step is to pull from the filters when the search is running and get or edit proper expenses based on the search. We will need to alter several methods which access the collection: <code>GetCell</code>, <code>RowsInSection</code>, <code>OnFlipBillable</code>, <code>DeleteExpense</code>, and <code>PrepareForSegue</code>. If the <b>filteredExpenses</b> list is not <code>null</code>, then we will use that as our source for the data and count; otherwise use the original <code>expenses</code> collection.
+       </li>
+
+<p><a href="#" onclick="toggleCode(this,'getCell');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="getCell" style="display:none;">
+<pre class="prettyprint">
+async void OnFlipBillable(UITableViewRowAction rowAction, NSIndexPath indexPath)
+{
+    Expense expense = filteredExpenses != null ? filteredExpenses[indexPath.Row] : expenses[indexPath.Row];
+    expense.Billable = !expense.Billable;
+    TableView.ReloadRows(new[] { indexPath }, UITableViewRowAnimation.Automatic);
+    await new DataStore().Update(expense);
+}
+
+public override nint RowsInSection(UITableView tableview, nint section)
+{
+    <span class="highlight">if (filteredExpenses != null)
+        return filteredExpenses.Count;</span>
+   ...
+}
+
+public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
+{
+    var cell = tableView.DequeueReusableCell(CellIdentifier, indexPath);
+
+    <span class="highlight">var expense = (filteredExpenses != null)
+        ? filteredExpenses[indexPath.Row]
+        : expenses[indexPath.Row];</span>
+    ...
+}
+
+async Task DeleteExpense(int row, NSIndexPath indexPath)
+{
+    Expense expense = filteredExpenses != null ? filteredExpenses[row] : expenses[row];
+    expenses.Remove(expense);
+    if (filteredExpenses != null)
+    {
+        filteredExpenses.Remove(expense);
+    }
+    TableView.DeleteRows(new[] { indexPath }, UITableViewRowAnimation.Automatic);
+    await new DataStore().Delete(expense);
+}
+
+public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+{
+    if (segue.Identifier == "showDetail") {
+        var detailViewController = segue.DestinationViewController as ExpenseDetailViewController;
+        if (detailViewController != null) {
+            // if we are adding expense.
+            var selectedExpense = newExpense;
+            if (selectedExpense == null)
+            {
+              // See if this is the filtered list.
+              <span class="highlight">selectedExpense = (filteredExpenses != null)
+                ? filteredExpenses[TableView.IndexPathForSelectedRow.Row]
+                : expenses[TableView.IndexPathForSelectedRow.Row];</span>
+            }
+            detailViewController.SelectedExpense = selectedExpense;
+        }
+    }
+}
+</pre></div></p>
+
+
+        <li>
+          Run the application and enter some text into the search bar to begin filtering your list. This will cause the <code>GetCell</code> method to use the <b>filteredExpenses</b> list instead of the full list. Try tapping on an item and make sure it picks up the correct item while there is a filter in place (e.g. <code>PrepareForSegue</code> is using the filter).
+        </li>
+      </ol>
+
+    <img src="./res/images/lab5-part1-complete.png" />
+         
+      <h1>Summary</h1>
+      <p>
+          In this exercise, you added a search bar and search controller to the Table View using <code>UISearchController</code>.
+      </p>
+      <div class="align-right">
+          <a href="../Start%20Here.html">Go Back</a>
+      </div>
+    </section>
+
+    <script src="./res/js/jquery.min.js"></script>
+    <script src="./res/js/prettify.js"></script>
+    <script src="./res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft.</footer>
+</body>
+</html>
