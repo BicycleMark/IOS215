@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Exercise 1: Support editing operations on a Table View</title>
+    <link rel="stylesheet" type="text/css" href="./res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./res/styles/prettify.css" />
+    <link rel="stylesheet" type="text/css" href="./res/styles/styles.css">
+</head>
+
+<body>
+    <!-- Use the same title as the StartHere -->
+    <header>Editing TableViews</header>
+
+    <section id="main">
+
+        <h1 id="page-title"></h1>
+        
+        <h2>Duration</h2>
+        <p>10 minutes</p>
+
+        <h2>Goals</h2>
+       
+        <p>
+        The primary goal of this lab is to enable the built-in interactive editing support in a <code>UITableView</code> contained in an existing application.
+      </p>
+
+        <h2>Required assets</h2>
+        <p>
+        There is a starter project contained in the <b>Exercise 1</b> folder which has a simple Expense Tracker application that uses a Table View. There is also a completed version of the project in the folder to compare your finished exercise.
+        </p>
+
+        <h2>Challenge</h2>
+        <p>
+          You will be following the basic steps outlined in the discussion portion of the class to turn on the built-in editing capabilities of the Table View:
+            <ol>
+                <li>
+                  Add an <b>Edit</b> button to the UI using the pre-supplied button on the <code>UITableViewController</code>.
+                </li>
+                <li>
+                  Override the <code>EditingStyleForRow</code> method on the <code>UITableViewController</code> to control the editing style for each row. In this case, we will return <em>Delete</em> for each row, but this will show you how to influence this choice.
+                </li>
+                <li>
+                  Run the application to see the editing interface. When you are finished, it will look something like this:
+                </li>
+            </ol>
+
+            <img src="./res/images/lab2-3.PNG" />
+        </p>
+
+        <!-- Steps -->
+        <h1>Steps</h1>
+        <p>
+          Use the above high-level goals to work through the exercise and then fill in any required details using these step-by-step instructions.
+        </p>
+
+        <h2>Adding an Edit button to the UI</h2>
+        <p>
+          We will start by adding the built-in <b>Edit</b> button into our UI. This will turn editing mode on and off automatically. 
+        </p>
+        <ol>
+            <li>
+              Open the <b>MyExpenses.sln</b> contained in the <b>Exercise 1 / Start</b> folder.
+            </li>
+
+            <li>
+              Open the <b>ExpenseListViewController.cs</b> source file - all our changes will be made in this file.
+            </li>
+
+            <li>
+              Assign the <code>NavigationItem.RightBarButtonItem</code> property in the <code>ViewDidLoad</code> override to the built-in <code>EditButtonItem</code> property that is created by the <code>UIViewController</code> class.
+            </li>
+
+<p><a href="#" onclick="toggleCode(this,'NavBtn');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="NavBtn" style="display:none;">
+<pre class="prettyprint">
+public async override void ViewDidLoad()
+{
+    base.ViewDidLoad();
+
+    this.NavigationItem.RightBarButtonItem = this.EditButtonItem;
+    ...
+}
+</span></pre></div></p>
+
+          <li>
+            Run the application to see what has changed. Notice there is now an <b>Edit</b> button presented in the UI.
+          </li>
+
+<img src="./res/images/lab2-1.png" />
+
+          <p>
+            If you tap on the button, you will find that it doesn't do anything. To support edit mode, we have to override the <code>CanEditRow</code> method. In addition, if we want to support <em>both</em> inserts and deletes, we also need to override <code>EditingStyleForRow</code>.
+          </p>
+
+          <li>
+            Override the <code>CanEditRow</code> method and return <code>true</code> to indicate we can always edit the rows. If desired, you can turn enable and disable editing on a row-by-row basis by controlling the return value from this method.
+          </li>
+
+<p><a href="#" onclick="toggleCode(this,'RwEdit');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="RwEdit" style="display:none;">
+<pre class="prettyprint">
+public override bool CanEditRow(UITableView tableView, NSIndexPath indexPath)
+{
+  return true;
+}
+</span></pre></div></p>
+
+      <h2>Influence the supported editing styles for each row.</h2>
+        <p>
+          Next, let's specify the type of editing we can do by overriding the <code>EditingStyleForRow</code> method. We will only support delete operations right now, which is the default, but you will have the option to support insert operations .
+        </p>
+
+<p><a href="#" onclick="toggleCode(this,'RwEdit1');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="RwEdit1" style="display:none;">
+<pre class="prettyprint">
+public override UITableViewCellEditingStyle EditingStyleForRow(
+                   UITableView tableView, NSIndexPath indexPath)
+{
+    return UITableViewCellEditingStyle.Delete;
+}
+</span></pre></div></p>
+
+        <li>
+          Run the application again and go into editing mode. Tap on one of the red circles to get the delete button:
+        </li>
+
+        <img src="./res/images/lab2-3.PNG" />
+
+        <li>
+          Try tapping the delete button - it's not functional yet because we've not implemented any delete logic. We're going to talk about how to do that next.
+        </li>
+
+      </ol>
+
+        <h1>Summary</h1>
+        <p>
+          In this exercise, you modified the <strong>MyExpenses</strong> application to support the UI for deleting rows.
+        </p>
+        <div class="align-right">
+            <a href="../Start%20Here.html">Go Back</a>
+        </div>
+    </section>
+
+    <script src="./res/js/jquery.min.js"></script>
+    <script src="./res/js/prettify.js"></script>
+    <script src="./res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft.</footer>
+</body>
+</html>

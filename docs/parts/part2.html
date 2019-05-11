@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Exercise 2: Committing editing operations</title>
+    <link rel="stylesheet" type="text/css" href="./res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./res/styles/prettify.css" />
+    <link rel="stylesheet" type="text/css" href="./res/styles/styles.css">
+</head>
+
+<body>
+    <!-- Use the same title as the StartHere -->
+    <header>Editing TableViews</header>
+
+    <section id="main">
+
+        <h1 id="page-title"></h1>
+        
+        <h2>Duration</h2>
+        <p>10 minutes</p>
+
+        <h2>Goals</h2>
+       
+        <p>
+        The primary goal of this lab is to finish out the editing support in the Expense Tracker application by implementing the <code>CommitEditingStyle</code> method to support delete operations.
+        </p>
+
+        <h2>Required assets</h2>
+        <p>
+        You will be continuing from the prior exercise but there are two completed versions of the project in the <b>Exercise 2</b> folder to compare your final results. The <b>Completed</b> folder has the main part of the lab finished, and the <b>Final</b> folder has the optional exercise worked out. If you did not finish the last exercise, you can use the completed project from <b>Exercise 1</b> as a starting point here.
+        </p>
+
+        <h2>Challenge</h2>
+        <p>
+          You will be performing the following high-level steps:
+            <ol>
+                <li>
+                  Implement the <code>CommitEditingStyle</code> method to support deleting rows.
+                </li>
+                <li>
+                  Add an <b>Add</b> button to the UI which will enable inserting new expenses. You will then add the required logic by adding an empty <code>Expense</code> to the list and then transitioning to the Edit screen to fill in the details.
+                </li>
+            </ol>
+        </p>
+
+        <!-- Steps -->
+        <h1>Steps</h1>
+        <p>
+          Use the above high-level goals to work through the exercise and then fill in any required details using these step-by-step instructions.
+        </p>
+
+        <ol>
+          <li>
+            Add an override for the <code>CommitEditingStyle</code> method into the <b>ExpenseListViewController.cs</b> class.
+          </li>
+
+          <li>
+            Your new method should update the underlying array first (remember we are +1 when in editing mode!) and then refresh the Table View using the optimized method - check the slides for help if you don't remember the exact syntax. We will only be supporting DELETE right now. Use the following as a guide:
+            <ul class="indent-none">
+              <li>
+                Get the <code>Expense</code> in question using the passed <code>NSIndexPath</code> and remove it from the <b>expenses</b> collection.
+              </li>
+              <li>
+                 Delete the specific index from the Table View using <code>DeleteRows</code>.
+               </li> 
+               <li>
+               Finally, if you want to commit the change across app loads, you should delete the item from the underlying data store using the following <code>await</code>able call:
+               </li>
+            </ul>
+<pre class="codeblock prettyprint">
+await new DataStore().Delete(expense);
+</pre>
+          </li>
+
+<p><a href="#" onclick="toggleCode(this,'ImpDel');return false;" class="uiitem">Show Code</a>
+<div align="left" class="indent-left" id="ImpDel" style="display:none;">
+<pre class="prettyprint">
+public async override void CommitEditingStyle(UITableView tableView, 
+        UITableViewCellEditingStyle editingStyle, NSIndexPath indexPath)
+{
+    if (editingStyle == UITableViewCellEditingStyle.Delete) {
+       var expense = expenses[indexPath.Row];
+       expenses.Remove(expense);
+       tableView.DeleteRows(new[] { indexPath }, UITableViewRowAnimation.Automatic);
+       await new DataStore().Delete(expense);
+    }
+}
+</span></pre></div></p>
+
+        <li>
+          Run the application again and go into editing mode. Tap on one of the red circles to get the delete button - it should be removed from the UI in response.
+        </li>
+
+        <li>
+          Try sliding your finger to the left on a row when you are <em>not</em> in editing mode. 
+          It should show the same delete button - this is a swipe gesture to delete which was enabled
+          when we implemented <code>CommitEditingStyle</code> and supported delete on the row. It will
+          execute the same logic so there's nothing more to do to get this to work.
+        </li>
+      </ol>
+
+      <h2>Adding support to insert rows.</h2>
+      <p>
+          As a last step, let's add our support to insert rows into the Table View.
+        </p>
+        <ol>
+
+          <li>
+            Let's start by adding the logic to create the new expense and call the Details screen to fill it in. Create a class-level field of type <code>Expense</code> named <b>newExpense</b> to hold the expense while it is being created.
+          </li>
+
+          <li>
+            Next add a new method named <b>OnAddExpense</b> and assign the <b>newExpense</b> to a newly constructed object and use <code>PerformSegue</code> to invoke the "showDetail" segue.
+          </li>
+
+<p><a href="#" onclick="toggleCode(this,'AddBtn2');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="AddBtn2" style="display:none;">
+<pre class="prettyprint">
+Expense newExpense;
+
+void OnAddExpense()
+{
+     newExpense = new Expense();
+     PerformSegue("showDetail", this);
+}
+</span></pre></div></p>
+
+          <li>
+            Next, locate the <code>PrepareForSegue</code> method and update it to check the <b>newExpense</b> field before getting the selected expense. It should use the <b>newExpense</b> field instead if it is not <code>null</code>. This will pass the temporary expense object into the details screen.
+          </li>
+
+<p><a href="#" onclick="toggleCode(this,'prepareSegue');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="prepareSegue" style="display:none;">
+<pre class="prettyprint">
+public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+{
+    if (segue.Identifier == "showDetail") {
+        var detailViewController = segue.DestinationViewController as ExpenseDetailViewController;
+        if (detailViewController != null) {
+            <span class="highlight">var selectedExpense = newExpense;
+            if (selectedExpense == null)</span>
+                selectedExpense = expenses[TableView.IndexPathForSelectedRow.Row];
+            detailViewController.SelectedExpense = selectedExpense;
+        }
+    }
+}
+</pre></div></p>
+
+          <li>
+            Finally, To commit the expense once it has been filled in by the details screen, override the <code>ViewWillAppear</code> method and if the <b>newExpense</b> field is non-null, check the <code>Id</code> property on it and if <em>that's</em> non-zero (it's been added to the local database), then add it to the <b>expenses</b> collection and reload the TableView. As a last step in the method, set the <b>newExpense</b> field to <code>null</code>.
+          </li>
+
+<p><a href="#" onclick="toggleCode(this,'AddBtn4');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="AddBtn4" style="display:none;">
+<pre class="prettyprint">
+public override void ViewWillAppear(bool animated)
+{
+    // If we are adding an expense, and it was saved to the database
+    // (e.g. the Id > 0) then add it to our collection and reload the
+    // TableView with the new data.
+    if (newExpense != null) {
+        if (newExpense.Id != 0) {
+            expenses.Add(newExpense);
+            TableView.ReloadData();
+        }
+        newExpense = null;
+    }
+}
+</span></pre></div></p>
+
+        <p>
+          Delete has a "quick-access" gesture, but insert does not. As discussed in the lecture, many apps will provide an "Add" button to the Navigation toolbar to make this operation more intuitive. Let's do that as a final step in this process.
+        </p>
+
+        <li>
+          Add a new <code>UIBarButtonItem</code> in the <code>ViewDidLoad</code> method using the <code>UIBarButtonSystemItem.Add</code> type - point it at our existing <b>OnAddExpense</b> method (either change the method signature, or use a lambda to connect them together). Set it onto the <code>NavigationItem.LeftBarButtonItem</code>.
+        </li>
+
+<p><a href="#" onclick="toggleCode(this,'AddBtn1');return false;" class="uiitem">Show Code</a>
+<div class="indent-none" id="AddBtn1" style="display:none;">
+<pre class="prettyprint">
+public async override void ViewDidLoad()
+{
+    base.ViewDidLoad();
+    ...
+    UIBarButtonItem addButton = new UIBarButtonItem(
+             UIBarButtonSystemItem.Add, OnAddExpense);
+    this.NavigationItem.LeftBarButtonItem = addButton;
+    ...
+}
+
+void OnAddExpense(<span class="highlight">object sender, EventArgs e</span>)
+{
+    ...
+}
+</span></pre></div><p>
+
+        <li>
+          Run the application and try the Add button in the navigation bar - it should add a new entry to the end of the tasks when you have filled in the form.
+        </li>
+      </ol>
+
+      <h2>Optional: Support the INSERT feature directly in the Table View</h2>
+      <p>
+        You have implemented the insertion logic the way most applications choose to do it. However,
+        you can also utilize the built-in editing style support to insert rows. The idea is to add a "fake" row to the Table View (typically at the top or bottom) and set the editing style for that row to be INSERT. Then, when the user taps that row, go through the same "Add" logic we just implemented.
+      </p>
+      <p>
+        However, it's a little bit more complicated because of the "swipe-to-delete" gesture. This gesture places the table into edit mode, <em>but</em> does not show the UI. Which means you should <em>not</em> add the fake row when you are in this mode. This is a bit more involved and will complicate the logic, but if you have some time, or want to try this after class. 
+      </p>
+      <p>
+        You can try this out on your own, or during class if you have time. There is also a <b>Final</b> folder in the <b>Exercise 2</b> folder that has the completed implementation. If you'd like to try it on your own, here are the basic steps you will need to perform:
+      </p>
+
+      <ol>
+        <li>
+          Add a class field of type <code>bool</code> named <b>hasInsertionRow</b>. This will be used to track when we have added our insertion row and when we've removed it. We will set this to <code>true</code> to indicate that the "fake" row is present.
+        </li>
+
+        <li>
+          You will need to override the <code>SetEditing</code> method to detect when you are transitioning into <b>Edit</b> mode, and then:
+          <ul class="indent-none">
+            <li>
+              Update the <b>hasInsertionRow</b> flag to reflect the editing state (when it is <code>true</code>, we want our fake row).
+            </li>
+            <li>
+              Then, if <b>hasInsertRow</b> is now <code>true</code>, we will need to add our fake row using <code>InsertRows</code> at position (0,0).
+            </li>
+            <li>
+              If the flag was set, and is now false, we need to remove the first row (which is our fake row). However, if it was <em>already</em> false, then there is no row to remove.
+            </li>
+          </ul>
+        </li>
+
+        <li>
+          Update the <code>RowsInSection</code>, <code>GetCell</code> methods to check the <b>hasInsertionRow</b> flag and if it's set, adjust the passed row index to account for a fake row inserted at the top of the Table View, but not accounted for in our data. 
+        </li>                      
+
+        <li>
+          In <code>GetCell</code>, check the <b>hasInsertRow</b> flag, and if it's set, create a <code>UITableViewCell</code> which has the text "Add an Expense", no detail text and a <code>UIColor.Gray</code> text color.
+        </li>
+
+        <li>
+          To handle the swipe gesture properly, override the <code>WillBeginEditing</code> method. This is called to indicate that a specific row is entering into edit mode. It's called <em>after</em> we've entered edit mode and added our special insert row, so check the <code>hasInsertionRow</code> flag and reset the flag and delete the first row using <code>DeleteRows</code> if it's set. You will need to create a new <code>NSIndexPath</code> for Row/Section (0,0). 
+        </li>
+
+        <li>
+          Finally, update the <code>CommitEditingStyle</code> method to handle the <code>UITableViewCellEditingStyle.Insert</code> editing style. This can just call the same <code>OnAddExpense</code> method you already created.
+        </li>
+      </ol>
+        
+
+        <h1>Summary</h1>
+        <p>
+          In this exercise, you modified the <strong>MyExpenses</strong> application by adding buttons that provide the user with the ability to add and delete expenses.
+        </p>
+        <div class="align-right">
+            <a href="../Start%20Here.html">Go Back</a>
+        </div>
+    </section>
+
+    <script src="./res/js/jquery.min.js"></script>
+    <script src="./res/js/prettify.js"></script>
+    <script src="./res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft.</footer>
+</body>
+</html>
